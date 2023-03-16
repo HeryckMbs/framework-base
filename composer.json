@@ -1,0 +1,17 @@
+{
+    "name": "heryc/projeto-php",
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "heryckmbs",
+            "email": "heryckmota@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "symfony/var-dumper": "^6.0"
+    }
+}

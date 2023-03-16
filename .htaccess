@@ -1,0 +1,4 @@
+RewritweEngine on 
+
+RewriteCond %{REQUEST_FILENAME} !-f 
+Rewrite Rule ^(.*)$ ./index.php [QSA,NC]
