@@ -8,7 +8,7 @@ class Router{
     private $url = '';
     private $prefix = '';
 
-    private $routes = [];
+    private static $routes = [];
 
     private $request;
 
@@ -23,15 +23,11 @@ class Router{
         $this->prefix = $parseUrl['path'] ?? '';
     }
 
-    private function addRoute($method, $route, $params = []){
-        foreach($params as $key => $value){
-            if($value instanceof Closure){
-                $params['controller'] = $value;
-                unset($params[$key]);
-                continue;
-            }
-        }
-
+    private static function addRoute($method, $route, $params = []){
+        $params['controller'] = $params[0];
+        $params['function'] = $params[1];
+        unset($params[0]);
+        unset($params[1]);            
         $params['variables'] = [];
 
         $paternVariable = "/{(.*?)}/";
@@ -39,8 +35,9 @@ class Router{
             $route  = preg_replace($paternVariable, '(.*?)' , $route);
             $params['variables'] = $matches[1];
         }
+        
         $patternRoute = '/^'.str_replace('/', '\/',$route). '$/';
-        $this->routes[$patternRoute][$method] = $params;
+        self::$routes[$patternRoute][$method] = $params;
     }
 
     private function getUri(){
@@ -50,13 +47,15 @@ class Router{
     private function getRoute(){
         $uri = $this->getUri();
         $httpMethod = $this->request->getHttpMethod();
-        foreach($this->routes as $pattern => $methods){
+        foreach(self::$routes as $pattern => $methods){
             if(preg_match($pattern, $uri, $matches)){
                 if(isset($methods[$httpMethod])){
                     unset($matches[0]);
                     $keys = $methods[$httpMethod]['variables'];
                     $methods[$httpMethod]['variables'] = array_combine($keys, $matches);
-                    $methods[$httpMethod]['variables']['request'] = $this->request;
+                    if(in_array($httpMethod,['POST','UPDATE'])){
+                        $methods[$httpMethod]['variables']['request'] = $this->request->getPostVars();
+                    }
                     return $methods[$httpMethod];
                 }
                 throw new Exception('Método não permitido', 405);
@@ -67,33 +66,32 @@ class Router{
     public function run (){
         try{
             $route = $this->getRoute();
+           
             if(!isset($route['controller'])){
                 throw new Exception('A URL não pode ser processada');
             }
-
+            
             $args = [];
             
-            $reflection = new ReflectionFunction($route['controller']);
-            foreach($reflection->getParameters() as $parametro){
-                $name = $parametro->getName();
-                $args[$name] = $route['variables'][$name] ?? '';
+            foreach($route['variables'] as $nome => $variaveis){
+                $args[$nome] = $route['variables'][$nome] ?? '';
             }
-            return call_user_func_array($route['controller'],$args);
+            return call_user_func_array([$route['controller'], $route['function']], $args);
          }catch(Exception $e){
             return new Response($e->getCode(), $e->getMessage());
         }
     }
 
-    public function get($route, $params= []){
-        return $this->addRoute('GET', $route, $params);
+    public static function get($route, $params= []){
+        return self::addRoute('GET', $route, $params);
     }
-    public function post($route, $params= []){
-        return $this->addRoute('POST', $route, $params);
+    public static function post($route, $params= []){
+        return self::addRoute('POST', $route, $params);
     } 
-    public function put($route, $params= []){
-        return $this->addRoute('PUT', $route, $params);
+    public static function put($route, $params= []){
+        return self::addRoute('PUT', $route, $params);
     }
-    public function delete($route, $params= []){
-        return $this->addRoute('DELETE', $route, $params);
+    public static function delete($route, $params= []){
+        return self::addRoute('DELETE', $route, $params);
     }
 }

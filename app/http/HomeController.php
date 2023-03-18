@@ -2,10 +2,16 @@
 namespace app\http;
 
 class HomeController{
-    public $t = 9;
+    public static function oi(){
+        return new Response(200, 'oi');
+    }
 
-    public function __construct(){
-        $this->t = 10;
+    public static function teste($request){
+        dd($request['a']);
+    }
+
+    public static function teste2($id, $request){
+        dd($request['a'], $id);
     }
 
 }
