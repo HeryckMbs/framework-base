@@ -1,5 +1,6 @@
 <?php
 namespace app\http;
+use app\database\Db;
 
 class HomeController{
     public static function oi(){

@@ -2,6 +2,7 @@
 namespace app\http;
 use \Closure;
 use Exception;
+use \Db;
 use \ReflectionFunction;
 
 class Router{
@@ -46,6 +47,7 @@ class Router{
     }
     private function getRoute(){
         $uri = $this->getUri();
+
         $httpMethod = $this->request->getHttpMethod();
         foreach(self::$routes as $pattern => $methods){
             if(preg_match($pattern, $uri, $matches)){
