@@ -4,6 +4,7 @@ use app\database\Db;
 
 class HomeController{
     public static function oi(){
+        // Db::table('teste')->innerJoin('teste', 'id', 'ab')->get();
         return new Response(200, 'oi');
     }
 

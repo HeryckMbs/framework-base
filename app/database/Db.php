@@ -2,6 +2,7 @@
 namespace app\database;
 use PDO;
 use PDOException;
+use app\database\QueryBuilder;
 class Db {
     private static $host = 'localhost';
     private static $database = 'postgres';
@@ -25,15 +26,11 @@ class Db {
             echo '</pre>';
         }
     }
-
     
 
     private static function killConnection(){
-        self::$connection = null;
-       
+        self::$connection = null;    
     }
-
-
 
     public static function select($tableName,$whereAnd = [], $orderBy = []){
         self::makeConnection();
@@ -70,6 +67,9 @@ class Db {
             }
     }
 
-
+    public static function table($tableName){
+        QueryBuilder::setQuery($tableName);
+        return new QueryBuilder;
+    }
 
 }
