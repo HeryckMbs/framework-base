@@ -4,7 +4,7 @@ use app\database\Db;
 
 class HomeController{
     public static function oi(){
-        $T = Db::table('marcas')->where('id', '<>',1)->get();
+        DB::insert('funcionarios', ['nomeFunc' => 'Dodge']);
         return new Response(200, 'oi');
     }
 

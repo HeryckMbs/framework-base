@@ -64,7 +64,7 @@ class Db {
                 return $result;
             }else{
                 self::killConnection();
-                return 'Resultado não encontrado';
+                return false;
             }
        }catch(PDOException $e){
 
@@ -74,6 +74,37 @@ class Db {
     public static function table($tableName){
         QueryBuilder::setQuery($tableName);
         return new QueryBuilder;
+    }
+
+    public static function insert($tableName, $data){
+        $insert = "INSERT INTO $tableName (";
+        $bindParameters = '';
+        $insertColumns = [];
+        foreach($data as $coluna => $valor){
+            $insertColumns[] = $coluna;
+        }
+
+        $insert .= implode(",",$insertColumns). ") VALUES(";
+        $insertColumns = [];
+        foreach($data as $coluna => $valor){
+            $insertColumns[] = ":".$coluna;
+        }
+        $insert .= implode(",",$insertColumns) . ")";
+        try{
+            self::makeConnection();
+            $database = self::$connection->prepare($insert);
+            if($database->execute($data)){
+                self::killConnection();
+                return true;
+            }else{
+                throw new PDOException("Não foi possivel inserir o registro");
+            }
+        }catch(PDOException $e){
+            echo '<pre>';
+            print_r($e->getMessage());
+            echo '</pre>';
+        }
+       
     }
 
 }
