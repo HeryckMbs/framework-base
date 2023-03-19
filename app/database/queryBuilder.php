@@ -29,8 +29,7 @@ class QueryBuilder{
         if($issetSelect){
            self::$query = str_replace('*', self::$select, self::$query);
         }
-        dd(self::$query);
-        self::execute(self::$query);
+       return self::execute(self::$query);
     }
     
     public function select($fields = []){
@@ -52,12 +51,12 @@ class QueryBuilder{
         return $this;
     }
     public function whereRaw($where){
-            if(self::$where != ''){
-                self::$where .= $where;
-            }else{
-                self::$where .= $where;
-            }
-            return $this;
+        if(self::$where != ''){
+            self::$where .= $where;
+        }else{
+            self::$where .= $where;
+        }
+        return $this;
     }
     public function orderBy($column, $value){
         self::$orderBy .= " $column $value";
@@ -82,9 +81,10 @@ class QueryBuilder{
 
     private static function execute($query){
         try{
-
+            $result = Db::queryRaw($query);
+            return $result;
         }catch(PDOException $e){
-
+            throw new PDOException($e->getMessage());
         }
     }
 }

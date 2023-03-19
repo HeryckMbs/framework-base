@@ -32,30 +32,31 @@ class Db {
         self::$connection = null;    
     }
 
-    public static function select($tableName,$whereAnd = [], $orderBy = []){
-        self::makeConnection();
-        $query = "SELECT * FROM ". $tableName . " ";
-        if(count($whereAnd) > 0){
-            $whereSql = 'WHERE ';
-            foreach($whereAnd as $variavel => $valor){
-                $whereSql .=  "$variavel=:$variavel";
-            }
-            $query .= $whereSql;
-        }
-        $database = self::$connection->prepare($query);
-        if($database->execute($whereAnd)){
-            $result = $database->fetchAll(PDO::FETCH_ASSOC);
-            self::killConnection();
-            return $result;
-        }else{
-            self::killConnection();
-            return 'Resultado não encontrado';
-        }
+    // public static function select($tableName,$whereAnd = [], $orderBy = []){
+    //     self::makeConnection();
+    //     $query = "SELECT * FROM ". $tableName . " ";
+    //     if(count($whereAnd) > 0){
+    //         $whereSql = 'WHERE ';
+    //         foreach($whereAnd as $variavel => $valor){
+    //             $whereSql .=  "$variavel=:$variavel";
+    //         }
+    //         $query .= $whereSql;
+    //     }
+    //     $database = self::$connection->prepare($query);
+    //     if($database->execute($whereAnd)){
+    //         $result = $database->fetchAll(PDO::FETCH_ASSOC);
+    //         self::killConnection();
+    //         return $result;
+    //     }else{
+    //         self::killConnection();
+    //         return 'Resultado não encontrado';
+    //     }
 
-    }
+    // }
 
     public static function queryRaw($query){
-        self::makeConnection();
+       try{
+            self::makeConnection();
             $database = self::$connection->prepare($query);
             if($database->execute()){
                 $result = $database->fetchAll(PDO::FETCH_ASSOC);
@@ -65,6 +66,9 @@ class Db {
                 self::killConnection();
                 return 'Resultado não encontrado';
             }
+       }catch(PDOException $e){
+
+       }
     }
 
     public static function table($tableName){
