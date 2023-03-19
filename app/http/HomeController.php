@@ -1,10 +1,13 @@
 <?php
 namespace app\http;
 use app\database\Db;
+use app\models\Teste;
 
 class HomeController{
     public static function oi(){
-        DB::insert('funcionarios', ['nomeFunc' => 'Dodge']);
+        $t = new Teste();
+        $ta = $t->findOrFail(1);
+        dd($ta);
         return new Response(200, 'oi');
     }
 
