@@ -6,8 +6,11 @@ use app\models\Teste;
 class HomeController{
     public static function oi(){
         $t = new Teste();
-        $ta = $t->findOrFail(1);
-        dd($ta);
+        $t =  $t->findOrFail(1);
+       
+       $t->object['nomefunc'] = 'Volks';
+       
+       $t->save();
         return new Response(200, 'oi');
     }
 

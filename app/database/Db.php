@@ -3,6 +3,8 @@ namespace app\database;
 use PDO;
 use PDOException;
 use app\database\QueryBuilder;
+use Exception;
+
 /**
  * 
  * Classe do Banco de Dados, responsável pelas operações SELECT, INSERT,UPDATE E DELETE
@@ -85,7 +87,6 @@ class Db {
      */
     protected static function insert($tableName, $data){
         $insert = "INSERT INTO $tableName (";
-        $bindParameters = '';
         $insertColumns = [];
         foreach($data as $coluna => $valor){
             $insertColumns[] = $coluna;
@@ -113,12 +114,40 @@ class Db {
         }
        
     }
+
+    /**
+     * 
+     * Deleta um registro do banco de dados tendo o identifier como qualquer chave do banco
+     */
     protected static function delete($tableName, $identifier, $value){
         $delete = "DELETE FROM $tableName WHERE $identifier = $value";
         self::makeConnection();
         $resultado = self::$connection->prepare($delete)->execute();
         self::killConnection();
         return $resultado;
+    }
+
+    /**
+     * Atualiza um registro do banco usando os bindParameters do pdo
+     * 
+     */
+    protected static function update($tableName, $data,$primaryKey){
+        $update = "UPDATE $tableName SET ";
+        $updateColumns = [];
+        foreach($data as $coluna => $valor){
+            if($coluna != $primaryKey){
+                $updateColumns[] = $coluna."=:$coluna";
+            }
+        }
+        $update .= implode(",",$updateColumns). " WHERE $primaryKey=:$primaryKey";
+        try{
+            self::makeConnection();
+            $resultado = self::$connection->prepare($update)->execute($data);
+            self::killConnection();
+            return $resultado;
+        }catch(PDOException $e){
+            throw new Exception($e->getMessage() . " Código :". $e->getCode());
+        }
     }
 
 }
